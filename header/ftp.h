@@ -12,3 +12,8 @@
 void ftp_client_init(char *server_ip, char *server_port);
 void ftp_client_set_main_loop_variable(GMainLoop *loop);
 GMainLoop *ftp_client_get_main_loop_variable();
+
+
+void ftp_server_init(char *control_socket_port);
+void ftp_client_set_main_loop_variable(GMainLoop *loop);
+GMainLoop *ftp_client_get_main_loop_variable();
