@@ -1,11 +1,1 @@
 #include "ftp.h"
-
-#define LS "ls"
-#define PWD "pwd"
-#define CHANGE_DIR "chd"
-#define RENAME_DIR "rename"
-#define CREATE_DIR "mkdir"
-#define QUIT "quit"
-#define EXIT "exit"
-#define BYE  "bye"
-#define HELP  "help"
