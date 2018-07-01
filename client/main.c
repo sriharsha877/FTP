@@ -7,14 +7,9 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	
-	GMainLoop *loop;
-
-	loop = g_main_loop_new(NULL, FALSE);
-
-	ftp_client_set_main_loop_variable(loop);
-
-	ftp_client_init(argv[1], argv[2]);
+	//ftp_client_init(argv[1], argv[2]);
 	
-	g_main_loop_run(loop);
+	ftp_client_select_options();
+
 	return 0;
 }

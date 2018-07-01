@@ -28,6 +28,6 @@ void ftp_client_init(char *server_ip, char *server_port)
 	}
 
 	printf("connect success\n");
-	
+
 	return;
 }
