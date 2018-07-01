@@ -15,20 +15,22 @@ CLIENT_OBJECT := $(CLIENT:%.c=%.o)
 SERVER_OBJECT := $(SERVER:%.c=%.o)
 
 HDR := ./header
-GLIB := /usr/include/glib-2.0/
-GLIB_HEADER := /usr/lib/x86_64-linux-gnu/glib-2.0/include
+GLIB_HEADER1 := /usr/include/glib-2.0/
+GLIB_HEADER2 := /usr/lib/x86_64-linux-gnu/glib-2.0/include
+JSON_HEADER := /usr/local/include
 
+GLIB := -lglib-2.0 -ljson-c
 
 cli : $(CLIENT_OBJECT) 
-	$(CC) -o $@ $^ -lglib-2.0
+	$(CC) -o $@ $^ $(GLIB)
 	mv *.o ./object/
 
 ser : $(SERVER_OBJECT)
-	$(CC) -o $@ $^ -lglib-2.0
+	$(CC) -o $@ $^ $(GLIB)
 	mv *.o ./object/
 
 %.o : %.c 
-	$(CC) -c $^  -I $(HDR) -I $(GLIB) -I $(GLIB_HEADER)
+	$(CC) -c $^  -I $(HDR) -I $(GLIB_HEADER1) -I $(GLIB_HEADER2)
 
 clean : 
 	rm -rf cli ser ./object/*.o
