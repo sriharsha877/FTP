@@ -1,6 +1,74 @@
 #include "ftp.h"
 
 #define MAX_CLIENT_CONNECTIONS 10
+#define MAX_CLIENTS 100
+#define MAX_BUF 512 
+
+int client_fd[MAX_CLIENTS];
+
+void ftp_server_accept_incoming_connections(int sock_fd)
+{
+	printf("[%s] fucntion entered\n", __func__);
+
+	int i = 0;
+	int ret = 0;
+	int fd_max = 0;
+	int new_fd = 0;
+	fd_set read_fds;
+	socklen_t length = 0;
+	char *recv_msg = NULL;
+	struct sockaddr_in client_addr;
+	
+	FD_ZERO(&read_fds);
+	fd_max = sock_fd;
+
+	while(1) {
+		client_fd[sock_fd] = sock_fd;
+		for(i = 0; i < fd_max; i++) {
+			FD_SET(client_fd[i], &read_fds);
+		}
+		
+		ret = select(fd_max + 1, &read_fds, NULL, NULL, NULL);
+		if (ret < 0) {
+			g_print("<%s:%s:%d> select failed\n", __FILE__, __func__, __LINE__);
+			return;
+		}
+
+
+		if (FD_ISSET(sock_fd, &read_fds)) {
+			new_fd = accept(sock_fd, (struct sockaddr *)&client_addr, &length);
+			if (new_fd < 0) {
+				g_print("<%s:%s:%d> accept failed\n", __FILE__, __func__, __LINE__);
+				return;
+			}
+
+			g_print("Connection accepted from : %s\n", inet_ntoa(client_addr.sin_addr));
+
+			client_fd[new_fd] = new_fd;
+			if (new_fd > fd_max)
+				fd_max = new_fd;
+		}
+
+		for (i = 3; i < fd_max - 1; i++) {
+			if (FD_ISSET(client_fd[i], &read_fds)) {
+				recv_msg = g_malloc0(MAX_BUF);
+				ret = recv(client_fd[i], recv_msg, MAX_BUF, 0);
+				if (ret < 0) {
+					g_print("<%s:%s:%d>recv failed\n", __FILE__, __func__, __LINE__);
+					return;
+				}
+
+				g_print("Received message is : %s\n", recv_msg);
+				g_free(recv_msg);
+				recv_msg = NULL;
+			}
+		}
+
+		FD_ZERO(&read_fds);
+
+	}
+}
+
 
 void ftp_server_init(char *control_socket_port)
 {
@@ -20,7 +88,7 @@ void ftp_server_init(char *control_socket_port)
 		return;
 	}
 	
-	ret = setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &used, sizeof(int));
+	ret = setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT|SO_REUSEADDR, &used, sizeof(int));
 	if (0 > ret) {
 		printf("setsockopt failed : %d\n", ret);
 		return;
@@ -44,19 +112,14 @@ void ftp_server_init(char *control_socket_port)
 
 	printf("Listening for connections\n");
 
-	new_fd = accept(server_fd, (struct sockaddr *)&client_addr, &length);
-	if (new_fd <= 0) {
-		printf("AAccept failed: %d\n", new_fd);
-		return;
-	}
+	ftp_server_accept_incoming_connections(server_fd);
 
-	printf("Connection success: %d\n", new_fd);
 
 }
 int main(int argc, char **argv)
 {
-	if (argc != 3) {
-		printf("Usage : %s <Ip address> <port>\n", argv[0]);
+	if (argc != 2) {
+		printf("Usage : %s <port>\n", argv[0]);
 		return -1;
 	}
 	GMainLoop *loop;

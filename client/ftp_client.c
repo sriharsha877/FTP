@@ -3,6 +3,8 @@
 
 void ftp_client_init(char *server_ip, char *server_port)
 {
+	g_print("ip : %s port : %s\n", server_ip, server_port);
+
 	int ret = 0;
 	int control_socket_fd = 0;
 	struct sockaddr_in server_addr;
@@ -27,7 +29,7 @@ void ftp_client_init(char *server_ip, char *server_port)
 		return;
 	}
 
-	printf("connect success\n");
+	printf("connect success :%d\n", ret);
 
 	return;
 }
